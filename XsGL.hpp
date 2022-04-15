@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <vector>
 template <typename T> concept _Vector2_t = requires(T a) {
 	a.x;
 	a.y;
@@ -15,18 +16,23 @@ template <typename T> concept _Vector4_t = requires(T a) {
 	a.w;
 };
 struct {
+    template <typename T> using list = std::vector<T>;
 	using f32 = const float&;
 	using uint = unsigned int;
+    using byte = unsigned char;
 	using fn = void;
+    using ptr = void*;
 	inline fn Color(f32 rgb) { glColor3f(rgb, rgb, rgb); };
-	inline fn Color(f32 r, f32 g, f32 b) { glColor3f(r, g, b); };
+    inline fn Color(f32 r, f32 g, f32 b, f32 a = 1.f) { glColor4f(r, g, b, a); };
+    inline fn Color(byte rgb) { glColor3f(rgb, rgb, rgb); };
+    inline fn Color(byte r, byte g, byte b, byte a = 255) { glColor4ub(r, g, b, a); };
 	template <_Vector3_t T> inline fn Color(const T& vec) { glColor3f(vec.x, vec.y, vec.z); };
 	template <_Vector4_t T> inline fn Color(const T& vec) { glColor4f(vec.x, vec.y, vec.z, vec.w); };
 	inline fn Translate(f32 xyz) { glTranslatef(xyz, xyz, xyz); };
 	inline fn Translate(f32 x, f32 y, f32 z) { glTranslatef(x, y, z); };
 	template <_Vector2_t T> inline fn Translate(const T& vec) { glTranslatef(vec.x, vec.y, 0); };
 	template <_Vector3_t T> inline fn Translate(const T& vec) { glTranslatef(vec.x, vec.y, vec.z); };
-	inline fn Rotate(f32 v) { glRotatef(v, 1, 1, 1); };
+	inline fn Rotate(f32 v) { glRotatef(v, 0, 0, 1); };
 	inline fn Rotate(f32 x, f32 y, f32 z) { glRotatef(x, 1, 0, 0); glRotatef(y, 0, 1, 0); glRotatef(z, 0, 0, 1); };
 	inline fn Rotate(f32 w, f32 x, f32 y, f32 z) { glRotatef(w, x, y, z); };
 	template <_Vector3_t T> inline fn Rotate(const T& v) { glRotatef(v.x, 1, 0, 0); glRotatef(v.y, 0, 1, 0); glRotatef(v.z, 0, 0, 1); };
@@ -38,16 +44,42 @@ struct {
 	inline fn Vertex(f32 xyz) { glVertex3f(xyz, xyz, xyz); };
 	inline fn Vertex(f32 x, f32 y) { glVertex2f(x, y); };
 	inline fn Vertex(f32 x, f32 y, f32 z) { glVertex3f(x, y, z); };
-    enum class Poly : uint {
+    inline fn TexCoord(f32 xy) { glTexCoord2f(xy, xy); };
+    inline fn TexCoord(f32 x, f32 y) { glTexCoord2f(x, y); };
+    template <_Vector2_t T> inline fn TexCoord(const T& vec) { glTexCoord2f(vec.x, vec.y); };
+    inline fn Viewport(f32 x1, f32 y1, f32 x2, f32 y2) { glViewport(x1, y1, x2, y2); };
+    template <_Vector2_t T1, _Vector2_t T2> inline fn Viewport(const T1& xy, const T2& xy2) { glViewport(xy.x, xy.y, xy2.x, xy.y); };
+    enum class Poly : byte {
         Point = GL_POINTS,
         Line = GL_LINES,
+        LineLoop = GL_LINE_LOOP,
+        LineStrip = GL_LINE_STRIP,
         Traingle = GL_TRIANGLES,
+        TriangleStrip = GL_TRIANGLE_STRIP,
+        TriangleFan = GL_TRIANGLE_FAN,
         Quad = GL_QUADS,
         Polygon = GL_POLYGON
     };
     using enum Poly;
     inline fn Begin(Poly poly) { glBegin((GLenum)poly); };
     inline fn End() { glEnd(); };
+    enum class TextureMode : uint {
+        Texture1D = GL_TEXTURE_1D,
+        Texture2D = GL_TEXTURE_2D,
+        Texture3D = GL_TEXTURE_3D,
+    };
+    using enum TextureMode;
+    inline fn bind(uint id, TextureMode target = Texture2D) { glBindTexture((GLenum)target, id); };
+    enum class DataType : uint {
+        Float = GL_FLOAT,
+        Double = GL_DOUBLE,
+        Boolean = GL_BOOL,
+        Int = GL_INT,
+        Uint = GL_UNSIGNED_INT,
+        Byte = GL_UNSIGNED_BYTE,
+        Char = GL_BYTE
+    };
+    using enum DataType;
     enum class Enum : uint {
             Zero = 0,
             False = 0,
@@ -584,6 +616,36 @@ struct {
             AllAttribBits = 0x000fffff,
             ClientAllAttribBits = 0xffffffff
         };
+// /////////////////////////////////// //
+    struct {
+        inline fn operator()(Enum en) { glEnable(GLenum(en)); };
+        inline fn ClientState(Enum en) { glEnableClientState((GLenum)en); };
+        inline fn VertexAttribArray(uint pos) { glEnableVertexAttribArray(pos); };
+        inline bool operator[](Enum en) { return glIsEnabled((GLenum)en); };
+    } Enable;
+    struct {
+        inline fn operator()(Enum en) { glDisable(GLenum(en)); };
+        inline fn ClientState(Enum en) { glDisableClientState((GLenum)en); };
+        inline fn VertexAttribArray(uint pos) { glDisableVertexAttribArray(pos); };
+    } Disable;
+    inline fn Flush() { glFlush(); };
+    inline fn Ident() { glLoadIdentity(); };
+    inline fn ShadeModel(Enum en) { glShadeModel((GLenum)en); };
+    inline fn VertexAttribPointer(uint index, int size, DataType type, bool normalized, uint stride, const ptr pointer) { glVertexAttribPointer(index, size, (GLenum)type, normalized, stride, pointer); };
+    inline fn VertexPointer(int size, DataType type, uint stride, const ptr pointer) { glVertexPointer(size, (GLenum)type, stride, pointer); };
+    inline fn TexCoordPointer(int size, DataType type, uint stride, const ptr pointer) { glTexCoordPointer(size, (GLenum)type, stride, pointer); };
+    inline fn NormalPointer(DataType type, uint stride, const ptr pointer) { glNormalPointer((GLenum)type, stride, pointer); };
+    inline fn DrawArrays(Poly poly, uint count, uint first = 0u) { glDrawArrays((GLenum)poly, first, count); };
+    //template <_Vector3_t T> inline fn Draw(Poly poly, list<T> data, DrawMode mode = Vertex) { /*maybe later*/ };
+    // inline fn Enable(Enum en) { glEnable(GLenum(en)); };
+    // inline fn Disable(Enum en) { glDisable(GLenum(en)); };
+    // inline fn EnableClientState(Enum en) { glEnableClientState((GLenum)en); };
+    // inline fn EnableVertexAttribArray(uint pos) { glEnableVertexAttribArray(pos); };
+    // inline fn DisableClientState(Enum en) { glDisableClientState((GLenum)en); };
+    // inline fn DisableVertexAttribArray(uint pos) { glDisableVertexAttribArray(pos); };
 } gl;
 using glEnum = decltype(gl)::Enum;
 using glPoly = decltype(gl)::Poly;
+using glDataType = decltype(gl)::DataType;
+using glTextureMode = decltype(gl)::TextureMode;
+// constexpr const auto& _gl_init = []() { glewInit(); return nullptr; };
