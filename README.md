@@ -1,7 +1,7 @@
-## XsGL [Modern, Type Safe, Functional Opengl]
+### XsGL [Modern, Type Safe, Functional Opengl]
 
 ```cpp
-void myfunc() {
+void draw_square() {
   gl.Disable(gl.Texture2D);
   gl.Ident();
   gl.Translate(0,0);
