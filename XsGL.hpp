@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include <vector>
+//#include <vector>
 template <typename T> concept _Vector2_t = requires(T a) {
 	a.x;
 	a.y;
@@ -16,7 +16,7 @@ template <typename T> concept _Vector4_t = requires(T a) {
 	a.w;
 };
 struct {
-    template <typename T> using list = std::vector<T>;
+    //template <typename T> using list = std::vector<T>;
 	using f32 = const float&;
 	using uint = unsigned int;
     using byte = unsigned char;
