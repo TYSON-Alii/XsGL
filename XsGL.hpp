@@ -24,8 +24,8 @@ struct {
     using ptr = void*;
 	inline fn Color(f32 rgb) { glColor3f(rgb, rgb, rgb); };
     inline fn Color(f32 r, f32 g, f32 b, f32 a = 1.f) { glColor4f(r, g, b, a); };
-    inline fn Color(byte rgb) { glColor3f(rgb, rgb, rgb); };
-    inline fn Color(byte r, byte g, byte b, byte a = 255) { glColor4ub(r, g, b, a); };
+    //inline fn Color(byte rgb) { glColor3f(rgb, rgb, rgb); };
+    //inline fn Color(byte r, byte g, byte b, byte a = 255) { glColor4ub(r, g, b, a); };
 	template <_Vector3_t T> inline fn Color(const T& vec) { glColor3f(vec.x, vec.y, vec.z); };
 	template <_Vector4_t T> inline fn Color(const T& vec) { glColor4f(vec.x, vec.y, vec.z, vec.w); };
 	inline fn Translate(f32 xyz) { glTranslatef(xyz, xyz, xyz); };
@@ -41,9 +41,21 @@ struct {
 	inline fn Scale(f32 x, f32 y, f32 z) { glScalef(x, y, z); };
 	template <_Vector2_t T> inline fn Scale(const T& vec) { glScalef(vec.x, vec.y, 0); };
 	template <_Vector3_t T> inline fn Scale(const T& vec) { glScalef(vec.x, vec.y, vec.z); };
-	inline fn Vertex(f32 xyz) { glVertex3f(xyz, xyz, xyz); };
-	inline fn Vertex(f32 x, f32 y) { glVertex2f(x, y); };
-	inline fn Vertex(f32 x, f32 y, f32 z) { glVertex3f(x, y, z); };
+    struct {
+        inline fn operator()(f32 xyz) { glVertex3f(xyz, xyz, xyz); };
+        inline fn operator()(f32 x, f32 y) { glVertex2f(x, y); };
+        inline fn operator()(f32 x, f32 y, f32 z) { glVertex3f(x, y, z); };
+        inline fn Line(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2);
+        template <_Vector3_t T> inline fn Line(const T& p1, const T& p2);
+        inline fn Line(f32 x1, f32 y1, f32 x2, f32 y2);
+        template <_Vector2_t T> inline fn Line(const T& p1, const T& p2);
+        inline fn Rect(f32 x, f32 y, f32 scale_x, f32 scale_y = scale_x) {
+            glVertex2f(x - scale_x, y - scale_y);
+            glVertex2f(x + scale_x, y - scale_y);
+            glVertex2f(x + scale_x, y + scale_y);
+            glVertex2f(x - scale_x, y + scale_y);
+        };
+    } Vertex;
     inline fn TexCoord(f32 xy) { glTexCoord2f(xy, xy); };
     inline fn TexCoord(f32 x, f32 y) { glTexCoord2f(x, y); };
     template <_Vector2_t T> inline fn TexCoord(const T& vec) { glTexCoord2f(vec.x, vec.y); };
@@ -615,7 +627,7 @@ struct {
             ScissorBit = 0x00080000,
             AllAttribBits = 0x000fffff,
             ClientAllAttribBits = 0xffffffff
-        };
+    };
 // /////////////////////////////////// //
     struct {
         inline fn operator()(Enum en) { glEnable(GLenum(en)); };
