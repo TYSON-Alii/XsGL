@@ -49,7 +49,7 @@ struct {
         template <_Vector3_t T> inline fn Line(const T& p1, const T& p2);
         inline fn Line(f32 x1, f32 y1, f32 x2, f32 y2);
         template <_Vector2_t T> inline fn Line(const T& p1, const T& p2);
-        inline fn Rect(f32 x, f32 y, f32 scale_x, f32 scale_y = scale_x) {
+        inline fn Rect(f32 x, f32 y, f32 scale_x, f32 scale_y) {
             glVertex2f(x - scale_x, y - scale_y);
             glVertex2f(x + scale_x, y - scale_y);
             glVertex2f(x + scale_x, y + scale_y);
