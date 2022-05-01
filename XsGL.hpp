@@ -26,8 +26,8 @@ struct {
     //inline fn Color(f32 r, f32 g, f32 b, f32 a = 1.f) { glColor4f(r, g, b, a); };
     inline fn Color(byte rgb) { glColor3f(rgb, rgb, rgb); };
     inline fn Color(byte r, byte g, byte b, byte a = 255) { glColor4ub(r, g, b, a); };
-	template <_Vector3_t T> inline fn Color(const T& vec, f32 a) { glColor4f(vec.x, vec.y, vec.z, a); };
-	template <_Vector4_t T> inline fn Color(const T& vec) { glColor4f(vec.x, vec.y, vec.z, vec.w); };
+	template <_Vector3_t T> inline fn Color(const T& vec, f32 a) { glColor4ub(vec.x, vec.y, vec.z, a); };
+	template <_Vector4_t T> inline fn Color(const T& vec) { glColor4ub(vec.x, vec.y, vec.z, vec.w); };
 	inline fn Translate(f32 xyz) { glTranslatef(xyz, xyz, xyz); };
 	inline fn Translate(f32 x, f32 y, f32 z) { glTranslatef(x, y, z); };
 	template <_Vector2_t T> inline fn Translate(const T& vec, f32 z) { glTranslatef(vec.x, vec.y, z); };
